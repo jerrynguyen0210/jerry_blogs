@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://jerrynguyen0210.github.io/jerry_blogs/sitemap-index.xml

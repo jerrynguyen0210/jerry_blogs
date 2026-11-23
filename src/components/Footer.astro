@@ -1,0 +1,15 @@
+---
+import { site } from '../config';
+import { url } from '../lib/url';
+---
+
+<footer class="site-footer">
+  <div class="wrap">
+    <p>{site.name} · Adelaide</p>
+    <p>
+      <a href={url('rss.xml')}>RSS</a>
+      ·
+      <a href={site.github} rel="me">GitHub</a>
+    </p>
+  </div>
+</footer>

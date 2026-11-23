@@ -1,0 +1,40 @@
+---
+import type { Post } from '../lib/posts';
+import { formatDate, isoDate, readingTime, slugify } from '../lib/posts';
+import { url } from '../lib/url';
+
+interface Props {
+  posts: Post[];
+  empty: string;
+  heading?: 'h2' | 'h3';
+}
+
+const { posts, empty, heading = 'h2' } = Astro.props;
+const Title = heading;
+---
+
+{
+  posts.length === 0 ? (
+    <p class="empty">{empty}</p>
+  ) : (
+    <ul class="post-list">
+      {posts.map((post) => (
+        <li>
+          <article class="post-card">
+            <p class="meta">
+              <time datetime={isoDate(post.data.date)}>{formatDate(post.data.date)}</time>
+              <a class="dot" href={url(`tags/${slugify(post.data.category)}`)}>
+                {post.data.category}
+              </a>
+              <span class="dot">{readingTime(post.body)}</span>
+            </p>
+            <Title>
+              <a href={url(`posts/${post.id}`)}>{post.data.title}</a>
+            </Title>
+            <p class="summary">{post.data.description}</p>
+          </article>
+        </li>
+      ))}
+    </ul>
+  )
+}

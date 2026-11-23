@@ -1,0 +1,58 @@
+---
+import Base from '../../layouts/Base.astro';
+import { categories, categoryBlurbs, type Category } from '../../config';
+import { countLabel, getPosts, slugify } from '../../lib/posts';
+import { url } from '../../lib/url';
+
+const posts = await getPosts();
+
+const categoryCards = categories.map((category) => ({
+  name: category,
+  href: url(`tags/${slugify(category)}`),
+  blurb: categoryBlurbs[category],
+  count: posts.filter((post) => post.data.category === category).length,
+}));
+
+const extraTags = new Map<string, { name: string; count: number }>();
+for (const post of posts) {
+  for (const tag of post.data.tags) {
+    const slug = slugify(tag);
+    if ((categories as readonly string[]).map((item) => slugify(item)).includes(slug)) continue;
+    const current = extraTags.get(slug);
+    if (current) current.count += 1;
+    else extraTags.set(slug, { name: tag, count: 1 });
+  }
+}
+---
+
+<Base title="Tags" description="Posts grouped by Tech, Career, and Life.">
+  <h1 class="page-title">Tags</h1>
+  <p class="page-intro">Three shelves. Tech, career, and life. A post sits on one of them.</p>
+  <ul class="tag-list">
+    {
+      categoryCards.map((category) => (
+        <li>
+          <a href={category.href}>{category.name}</a>
+          <p>
+            {category.blurb} {countLabel(category.count)}.
+          </p>
+        </li>
+      ))
+    }
+  </ul>
+  {
+    extraTags.size > 0 && (
+      <>
+        <h2 class="subhead">Other tags</h2>
+        <ul class="tag-list">
+          {[...extraTags.entries()].map(([slug, tag]) => (
+            <li>
+              <a href={url(`tags/${slug}`)}>{tag.name}</a>
+              <p>{countLabel(tag.count)}.</p>
+            </li>
+          ))}
+        </ul>
+      </>
+    )
+  }
+</Base>

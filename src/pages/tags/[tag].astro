@@ -1,0 +1,52 @@
+---
+import Base from '../../layouts/Base.astro';
+import PostList from '../../components/PostList.astro';
+import { categories, categoryBlurbs, type Category } from '../../config';
+import { getPosts, isCategory, slugify, type Post } from '../../lib/posts';
+
+interface Props {
+  name: string;
+  kind: 'category' | 'tag';
+  posts: Post[];
+}
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  const paths = new Map<string, { name: string; kind: 'category' | 'tag'; posts: Post[] }>();
+
+  for (const category of categories) {
+    paths.set(slugify(category), {
+      name: category,
+      kind: 'category',
+      posts: posts.filter((post) => post.data.category === category),
+    });
+  }
+
+  for (const post of posts) {
+    for (const tag of post.data.tags) {
+      const slug = slugify(tag);
+      if (paths.has(slug) && paths.get(slug)?.kind === 'category') continue;
+      const existing = paths.get(slug);
+      if (existing) existing.posts.push(post);
+      else paths.set(slug, { name: tag, kind: 'tag', posts: [post] });
+    }
+  }
+
+  return [...paths.entries()].map(([tag, props]) => ({
+    params: { tag },
+    props,
+  }));
+}
+
+const { name, kind, posts } = Astro.props;
+const blurb = kind === 'category' && isCategory(name) ? categoryBlurbs[name as Category] : `Posts tagged ${name}.`;
+const description =
+  kind === 'category' ? `${name} posts from Jerry Nguyen. ${blurb}` : `Posts tagged ${name}.`;
+---
+
+<Base title={name} description={description}>
+  <p class="kicker">{kind === 'category' ? 'Category' : 'Tag'}</p>
+  <h1 class="page-title">{name}</h1>
+  <p class="page-intro">{blurb}</p>
+  <PostList posts={posts} empty={`Nothing filed under ${name} yet.`} />
+</Base>
