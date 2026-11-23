@@ -1,0 +1,58 @@
+---
+import { site } from '../config';
+import { url } from '../lib/url';
+
+const path = Astro.url.pathname.endsWith('/') ? Astro.url.pathname : `${Astro.url.pathname}/`;
+const base = import.meta.env.BASE_URL;
+
+const items = [
+  { href: url(), label: 'Home', key: 'home' },
+  { href: url('posts'), label: 'Posts', key: 'posts' },
+  { href: url('tags'), label: 'Tags', key: 'tags' },
+  { href: url('about'), label: 'About', key: 'about' },
+];
+
+function current(key: string): boolean {
+  if (key === 'home') return path === base;
+  return path.startsWith(`${base}${key}/`);
+}
+---
+
+<header class="site-header">
+  <div class="wrap bar">
+    <a class="brand" href={url()}>{site.title}</a>
+    <div class="tools">
+      <nav aria-label="Primary">
+        <ul class="nav-list">
+          {
+            items.map((item) => (
+              <li>
+                <a href={item.href} aria-current={current(item.key) ? 'page' : undefined}>
+                  {item.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+      <button type="button" class="theme-toggle" data-theme-toggle>
+        <span class="when-light">Dark mode</span>
+        <span class="when-dark">Light mode</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<script>
+  const button = document.querySelector('[data-theme-toggle]');
+  button?.addEventListener('click', () => {
+    const root = document.documentElement;
+    const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    try {
+      localStorage.setItem('theme', next);
+    } catch {
+      /* Private browsing can block storage. The toggle still works for this visit. */
+    }
+  });
+</script>

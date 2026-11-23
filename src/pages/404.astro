@@ -1,0 +1,10 @@
+---
+import Base from '../layouts/Base.astro';
+import { url } from '../lib/url';
+---
+
+<Base title="Page not found" description="That page is not on this site." noIndex>
+  <h1>Page not found</h1>
+  <p class="page-intro">That link doesn't go anywhere. The post may have moved, or the address is off.</p>
+  <p class="more"><a href={url()}>Back home</a></p>
+</Base>

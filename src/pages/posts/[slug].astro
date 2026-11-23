@@ -1,0 +1,71 @@
+---
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import { site } from '../../config';
+import { formatDate, getPosts, isoDate, readingTime, slugify, type Post } from '../../lib/posts';
+import { absoluteUrl, url } from '../../lib/url';
+
+interface Props {
+  post: Post;
+}
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+const tags = [post.data.category, ...post.data.tags];
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BlogPosting',
+  headline: post.data.title,
+  description: post.data.description,
+  datePublished: post.data.date.toISOString(),
+  inLanguage: 'en-AU',
+  url: absoluteUrl(`posts/${post.id}`),
+  author: {
+    '@type': 'Person',
+    name: site.name,
+    url: site.github,
+  },
+  keywords: tags.join(', '),
+};
+---
+
+<Base
+  title={post.data.title}
+  description={post.data.description}
+  ogType="article"
+  published={post.data.date}
+  tags={tags}
+  jsonLd={jsonLd}
+>
+  <article>
+    <header class="post-header">
+      <p class="meta">
+        <time datetime={isoDate(post.data.date)}>{formatDate(post.data.date)}</time>
+        <a class="dot" href={url(`tags/${slugify(post.data.category)}`)}>{post.data.category}</a>
+        <span class="dot">{readingTime(post.body)}</span>
+      </p>
+      <h1>{post.data.title}</h1>
+    </header>
+    <div class="prose">
+      <Content />
+    </div>
+    {
+      post.data.tags.length > 0 && (
+        <p class="meta">
+          {post.data.tags.map((tag) => (
+            <a href={url(`tags/${slugify(tag)}`)}>{tag}</a>
+          ))}
+        </p>
+      )
+    }
+  </article>
+</Base>

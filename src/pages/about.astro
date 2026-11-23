@@ -1,0 +1,65 @@
+---
+import Base from '../layouts/Base.astro';
+import { isPlaceholderEmail, isPlaceholderLinkedIn, site } from '../config';
+import { absoluteUrl } from '../lib/url';
+
+const description = `${site.name} is a software engineer in Adelaide, writing about tech, career, and life.`;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: site.name,
+  alternateName: 'Jerry Nguyen',
+  url: absoluteUrl('about'),
+  homeLocation: {
+    '@type': 'Place',
+    name: site.location,
+  },
+  sameAs: [site.github, site.linkedin],
+  jobTitle: 'Software engineer',
+  description,
+};
+---
+
+<Base title="About" description={description} jsonLd={jsonLd}>
+  <h1>About</h1>
+  <div class="prose">
+    <p>
+      I'm Phuoc — most people call me Jerry. I'm a software engineer living in Adelaide, South
+      Australia.
+    </p>
+    <p>
+      I spent about nine years in embedded systems and automotive: C and C++, Python, Linux, and
+      CAN. That work was with Bosch, then Luxoft (Continental). I'm moving into backend now, mainly
+      FastAPI, PostgreSQL, and Docker, and I'm teaching myself frontend development and AI agents.
+    </p>
+    <p>I'm Vietnamese, and Adelaide is home.</p>
+    <p>
+      This blog is where I write about the technical stuff, the career change, and ordinary life.
+      Same tone I'd use with a mate.
+    </p>
+  </div>
+  <h2 class="subhead">Links</h2>
+  <ul class="links">
+    <li><a href={site.github} rel="me">GitHub</a></li>
+    <li>
+      <a href={site.project.url}>{site.project.name}</a>
+    </li>
+    <li>
+      <a href={site.linkedin} rel="me">LinkedIn</a>
+      {
+        isPlaceholderLinkedIn(site.linkedin) && (
+          <span class="hint">Placeholder. Put your URL in <code>src/config.ts</code>.</span>
+        )
+      }
+    </li>
+    <li>
+      <a href={`mailto:${site.email}`}>Email</a>
+      {
+        isPlaceholderEmail(site.email) && (
+          <span class="hint">Placeholder. Put your address in <code>src/config.ts</code>.</span>
+        )
+      }
+    </li>
+  </ul>
+</Base>
