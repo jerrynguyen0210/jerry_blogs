@@ -37,7 +37,7 @@ export function readingTime(text: string | undefined): string {
 }
 
 export function countLabel(count: number): string {
-  if (count === 0) return 'No posts yet';
+  if (count === 0) return 'First post coming soon';
   if (count === 1) return '1 post';
   return `${count} posts`;
 }
