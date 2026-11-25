@@ -1,9 +1,9 @@
 import { defineCollection, z } from 'astro:content';
-import { glob } from 'astro/loaders';
 import { categories } from './config';
+import { markdownPosts } from './lib/posts-loader';
 
 const posts = defineCollection({
-  loader: glob({ base: './src/content/posts', pattern: '**/*.md' }),
+  loader: markdownPosts(),
   schema: z.object({
     title: z.string(),
     description: z.string(),
